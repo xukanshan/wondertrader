@@ -19,16 +19,7 @@
 #include <rapidjson/prettywriter.h>
 namespace rj = rapidjson;
 
-#include <atomic>
-
 USING_NS_WTP;
-
-inline uint32_t makeTaskId()
-{
-	static std::atomic<uint32_t> _auto_task_id{ 1 };
-	return _auto_task_id.fetch_add(1);
-}
-
 
 WtSelEngine::WtSelEngine()
 	: _terminated(false)
@@ -258,6 +249,7 @@ void WtSelEngine::on_minute_end(uint32_t curDate, uint32_t curTime)
 		bool bIgnore = true;
 
 		/*
+		 *	By User @ 2026.08.27
 		 *	触发条件按周期分别判定: D/W/M/Y为时刻(_time, HHMM)与nextTime精确匹配后叠加原有日历条件;
 		 *	Minute周期以下一分钟(nextTime)换算的会话内分钟序号对_time取模.
 		 *	原实现将时刻匹配作为所有周期的公共前置门, 与Minute的间隔语义矛盾导致该分支永不可达;
@@ -421,7 +413,10 @@ void WtSelEngine::addContext(SelContextPtr ctx, uint32_t date, uint32_t time, Ta
 	tInfo->_time = time;
 	tInfo->_period = period;
 	tInfo->_strict_time = bStrict;
-	tInfo->_id = makeTaskId();
+
+	//任务记录所属上下文的真实ID: 分发时经getContext(_id)取回上下文,
+	//_tasks/_ctx_map均以ctx->id()为键, 不能使用独立的自增序号
+	tInfo->_id = ctx->id();
 
 	_tasks[ctx->id()] = tInfo;
 
