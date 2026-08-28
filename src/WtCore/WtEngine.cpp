@@ -1222,9 +1222,8 @@ void WtEngine::log_trade(const char* stdCode, bool isLong, bool isOpen, uint64_t
 {
 	if (_trade_logs)
 	{
-		std::stringstream ss;
-		ss << stdCode << "," << curTime << "," << (isLong ? "LONG" : "SHORT") << "," << (isOpen ? "OPEN" : "CLOSE") << "," << price << "," << qty << "," << fee << "\n";
-		_trade_logs->write_file(ss.str());
+		_trade_logs->write_file(fmt::format("{},{},{},{},{},{},{:.2f}\n", stdCode, curTime,
+			(isLong ? "LONG" : "SHORT"), (isOpen ? "OPEN" : "CLOSE"), price, qty, fee));
 	}
 }
 
@@ -1232,10 +1231,7 @@ void WtEngine::log_close(const char* stdCode, bool isLong, uint64_t openTime, do
 {
 	if (_close_logs)
 	{
-		std::stringstream ss;
-		ss << stdCode << "," << (isLong ? "LONG" : "SHORT") << "," << openTime << "," << openpx
-			<< "," << closeTime << "," << closepx << "," << qty << "," << profit << ","
-			<< totalprofit << "\n";
-		_close_logs->write_file(ss.str());
+		_close_logs->write_file(fmt::format("{},{},{},{},{},{},{},{:.2f},{:.2f}\n", stdCode,
+			(isLong ? "LONG" : "SHORT"), openTime, openpx, closeTime, closepx, qty, profit, totalprofit));
 	}
 }
